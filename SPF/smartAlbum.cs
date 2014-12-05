@@ -213,8 +213,8 @@ namespace SPF
             // optimize knn
             //Internal_KNN(goodImages, badImages);
             // optimize knn and svm
-            //Internal_KNN_SVM(goodImages, badImages);
-            testIntersection(goodImages, badImages);
+            Internal_KNN_SVM(goodImages, badImages); //regular intersection
+            //testIntersection(goodImages, badImages); //smart intersection
 
             // test using cross validation
             //learningAlgo = new SVM_Matlab(userPath, -5, -5, SVM_Matlab.Kernel.SVM_RBF);
@@ -238,7 +238,7 @@ namespace SPF
             {
                 string[] fileName = filesTrue[i].Split('\\');
                 string name = fileName[fileName.Length - 1];
-                if (learningAlgo.FilesTrueResults[i] == LearningAlgorithmML.Algorithm.GOOD)
+               // if (learningAlgo.FilesTrueResults[i] == LearningAlgorithmML.Algorithm.GOOD)
                     File.Copy(filesTrue[i], decidePath + "\\" + name);
             }
 
@@ -263,11 +263,11 @@ namespace SPF
             lowest = 1 - goodPercent;
             lowest -= 0.10;
             bool quit = false;
-            for (double percent = 0.1; percent < 0.2; percent += 0.1)
+            for (double percent = 0.2; percent < 0.3; percent += 0.1)
             {
                 int p = (int)(percent * 100);
 
-                for (int i = 1; i <= 1; i++)
+                for (int i = 1; i <= 10; i++)
                 {
 
                     Console.WriteLine("Percent = " + percent + ",Iteration =  " + i + ", Time: " + string.Format("{0:HH:mm:ss tt}", DateTime.Now));
@@ -370,7 +370,7 @@ namespace SPF
         {
             for (int k = 2; k <= 2; k++)
             {
-                //learningAlgo = new KNN_Matlab(userPath, k, goodImages, badImages);
+                learningAlgo = new KNN_Matlab(userPath, k, goodImages, badImages);
                 crossValidation(goodImages, badImages);
             }
 

@@ -338,8 +338,8 @@ namespace SPF
             result += avgTrueAndSelectedNotLearned + "\n";
             result += selectedAlbumSize + "," + selectedAlbumSizeNotLearned + "\n";
             result += avgAccuracy + ", " + avgAcc + ", " + avgRecall + ", " + avgPrecision + ", " + avgFScore + "\n";
-            
 
+            result += "****************\n";
             result += "\n" + svm.ToString();
             result += "\n" + knn.ToString();
 
