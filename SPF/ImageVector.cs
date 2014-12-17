@@ -13,7 +13,8 @@ namespace SPF
     {
         public const int NUMBER_OF_PARAMETERS = 15;                 // Number of all possible parameters
         public const int GOOD_IMAGE = 1;
-        public const int BAD_IMAGE = -1;
+        //!!!!!!!!!!!!!!!!
+        public const int BAD_IMAGE = 0; //was BAD_IMAGE = -1;
         private string _path;                                       // The path of the picture represented by this vector
 
         public string Path
@@ -30,15 +31,15 @@ namespace SPF
             averageGrayLevel = 0,
             numOfPoeple = 1,
             edges = 2,
-            facesCenterOfGravityX = 3,
-            facesCenterOfGravityY = 4,
-            facesImageAreaRatio = 5,
+            facesCenterOfGravityX = 3,  //shows whether the people shot in the picture are in the center
+            facesCenterOfGravityY = 4,  //shows whether the people shot in the picture are in the center
+            facesImageAreaRatio = 5,    //how close to the camera the people in the picture are 
             averageRedLevel = 6,
             averageBlueLevel = 7,
             averageGreenLevel = 8,
             averageHueLevel = 9,
             averageSaturationLevel = 10,
-            distanceFromGravityCenter = 11,
+            distanceFromGravityCenter = 11, //indicates how close to the camera the people in the pictures are
             imageInformation = 12,
             variance = 13,
             redEye = 14,

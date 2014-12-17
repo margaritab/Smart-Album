@@ -15,6 +15,7 @@ namespace SPF
         protected string type;
         protected ImageVector[] goodImages, badImages;
         protected bool[] learnedTrue, learnedFalse;
+        //arrays that contains if a picture is good or bad where each index equals the index in goodImages and badImages
         protected LearningAlgorithmML.Algorithm[] filesTrueResults, filesFalseResults;
 
         protected double[] confidenceTrue, confidenceFalse;

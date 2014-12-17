@@ -27,7 +27,8 @@ MToDecide  = normr(MToDecide);
 
 %mdl = ClassificationKNN.fit(MLearn, group, 'NumNeighbors', k);
 %[decision, confidence] = predict(mdl, MToDecide);
-decision = knnclassify(MToDecide, MLearn, group, k);
+%decision = knnclassify(MToDecide, MLearn, group, k);
+decision = fitcknn(MToDecide, MLearn, group, k);
 resultFile = fopen(resultFilePath, 'w');
 fprintf(resultFile, '%d', decision);
 %fprintf(resultFile, '%d', confidence);

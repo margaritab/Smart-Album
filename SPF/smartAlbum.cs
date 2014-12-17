@@ -30,7 +30,7 @@ namespace SPF
         public smartAlbum(string allPathL, string truePathL, string userPathL, string decidePathL)
         {
             allPath = allPathL;
-            truePath = truePathL;
+            truePath = truePathL; //good images
             userPath = userPathL;
             decidePath = decidePathL;
         }
@@ -40,6 +40,7 @@ namespace SPF
             allPath = allPathL;
             truePath = truePathL;
         }
+
 
         public smartAlbum(string all, string[] allImages, bool[] isImageGood, int[] subset)
         {
@@ -201,6 +202,7 @@ namespace SPF
 
             string[] filesFalse = DataConverter.Internal_ExtractFalseFiles(filesAll, filesTrue);
 
+            //contains the parameters for each picture and the picture path
             ImageVector[] goodImages = null;
             ImageVector[] badImages = null;
 
@@ -208,12 +210,13 @@ namespace SPF
             
 
             // remove comment if you want to optimize one of the algorithms
+
             // optimize svm
-            //Internal_SVM(goodImages, badImages);
+            // Internal_SVM(goodImages, badImages);
             // optimize knn
-            //Internal_KNN(goodImages, badImages);
+            Internal_KNN(goodImages, badImages);
             // optimize knn and svm
-            Internal_KNN_SVM(goodImages, badImages); //regular intersection
+            //Internal_KNN_SVM(goodImages, badImages); //regular intersection
             //testIntersection(goodImages, badImages); //smart intersection
 
             // test using cross validation
@@ -263,11 +266,11 @@ namespace SPF
             lowest = 1 - goodPercent;
             lowest -= 0.10;
             bool quit = false;
-            for (double percent = 0.2; percent < 0.3; percent += 0.1)
+            for (double percent = 0.1; percent < 0.2; percent += 0.1)
             {
                 int p = (int)(percent * 100);
 
-                for (int i = 1; i <= 10; i++)
+                for (int i = 1; i <= 1; i++)
                 {
 
                     Console.WriteLine("Percent = " + percent + ",Iteration =  " + i + ", Time: " + string.Format("{0:HH:mm:ss tt}", DateTime.Now));

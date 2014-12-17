@@ -10,9 +10,7 @@ namespace SPF
     {
 
         private string decide, cd;
-        private double runConf;
-
-
+        //private double runConf;
 
         public KNN_Matlab(string path, int k, ImageVector[] goodImages, ImageVector[] badImages)
         {
@@ -21,6 +19,7 @@ namespace SPF
             this.goodImages = goodImages;
             this.badImages = badImages;
 
+
             learnedTrue = new bool[goodImages.Length];
             learnedFalse = new bool[badImages.Length];
 
@@ -28,6 +27,7 @@ namespace SPF
 
             userPath = path + "\\KNN";
             resultPath = userPath + "\\" + k;
+            
             decide = GetCommand(userPath, k);
             matlab = new MLApp.MLApp();
             cd = "cd " + smartAlbum.getMatlabDirectory();
@@ -45,12 +45,14 @@ namespace SPF
             // convert image vectors into files(for matlab)
             DataConverter.convertDataVectorsToFile(userPath, goodImages, badImages, subsetFilesTrue, subsetFilesFalse, true);
 
-            //string learn = "albumLearnSVM";
-            //string kernelF = "rbf";
-            //int sigma = 1, gamma = 1;
-            //learn += "('" + userPath + "', " + "'" + kernelF + "', " + sigma + ", " + gamma + ");";
-            //string result = matlab.Execute(learn);
-
+            /*
+            string learn = "albumLearnSVM";
+            string kernelF = "rbf";
+            int sigma = 1, gamma = 1;
+            learn += "('" + userPath + "', " + "'" + kernelF + "', " + sigma + ", " + gamma + ");";
+            string result = matlab.Execute(learn);
+            */
+            
             return true;
         }
 
@@ -91,7 +93,7 @@ namespace SPF
             string[] readText = File.ReadAllLines(resultPath);
 
             double conf = Convert.ToDouble(readText[0]);
-
+            
             if (conf == ImageVector.BAD_IMAGE)
                 return Algorithm.BAD;
             else if (conf == ImageVector.GOOD_IMAGE)
