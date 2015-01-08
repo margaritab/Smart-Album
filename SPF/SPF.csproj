@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classifier.cs" />
+    <Compile Include="ClassifierNew.cs" />
     <Compile Include="DataConverter.cs" />
     <Compile Include="DecisionTreeNumerical.cs" />
     <Compile Include="DataLearning.cs" />
