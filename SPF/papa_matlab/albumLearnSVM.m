@@ -1,4 +1,4 @@
-function [ ] = albumLearnSVM( userWorkSpace, kernel, sigma, gamma )
+function [ ] = albumLearnSVM( userWorkSpace, kernel, sigma, gamma, numOfParameters )
 
 %learn
 fileToLearn = strcat(userWorkSpace,'\\Learn.txt');
@@ -7,8 +7,8 @@ profilePath = strcat(profilePath, kernel);
 profilePath = strcat(profilePath, '.mat');
 
 M = csvread(fileToLearn);
-xdata = M(1:end,1:15);
-group = M(1:end, 16);
+xdata = M(1:end,1:numOfParameters);
+group = M(1:end,(numOfParameters+1));
 
 if strcmp(kernel, 'rbf')
     svmStruct = svmtrain(xdata, group,'kernel_function', kernel, 'rbf_sigma', sigma, 'boxconstraint', gamma, 'tolkkt', 1e-5);

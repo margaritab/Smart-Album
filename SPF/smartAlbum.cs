@@ -20,6 +20,8 @@ namespace SPF
         private LearningAlgorithmML learningAlgo;
         private SVM_Matlab learningAlgoSvm;
 
+        public static int sd02 = 0, sd220 = 0, sd20plus = 0;
+        public static int m030 = 0, m3060 = 0, m60plus = 0;
 
         private string[] allImages, learnedTrue, learnedFalse;
         int[] subset;
@@ -304,10 +306,10 @@ namespace SPF
                 }
 
                 //**********calculate the most importent attributes***********//
-                double[][] pk = new double[15][];
-                double[][] nk = new double[15][];
-                double[] remainder = new double[15];
-                double[] gain = new double[15];
+                double[][] pk = new double[ImageVector.NUMBER_OF_PARAMETERS][];
+                double[][] nk = new double[ImageVector.NUMBER_OF_PARAMETERS][];
+                double[] remainder = new double[ImageVector.NUMBER_OF_PARAMETERS];
+                double[] gain = new double[ImageVector.NUMBER_OF_PARAMETERS];
               
                 ClassifierNew cn;
                 cn = new ClassifierNew();
@@ -346,10 +348,9 @@ namespace SPF
                     cn.calcRemainder(ref remainder[i],pk[i], nk[i], size);
                  //   Console.WriteLine("remainder["+i+"] " +remainder[i]);
                     cn.calcGain(ref gain[i], remainder[i] ,goodImages.Length , badImages.Length);
-                  //  Console.WriteLine("gain[" + i + "] " + gain[i]);
+                    Console.WriteLine("gain[" + i + "] " + gain[i]);
                 }
-
-
+           
                 
 
                 //********************************//
