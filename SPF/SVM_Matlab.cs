@@ -238,7 +238,7 @@ namespace SPF
             string command = "albumLearnSVM";
             string kernelF = getKernel(kernel);
 
-            command += "('" + path + "', " + "'" + kernelF + "', " + sigma + ", " + gamma + ");";
+            command += "('" + path + "', " + "'" + kernelF + "', " + sigma + ", " + gamma + "," + ImageVector.NUMBER_OF_PARAMETERS + ");";
             return command;
         }
 
@@ -248,7 +248,7 @@ namespace SPF
             //string command = "albumDecideSVM";
             string kernelF = getKernel(kernel);
 
-            command += "('" + path + "', " + "'" + kernelF + "');";
+            command += "('" + path + "', " + "'" + kernelF + "'," + ImageVector.NUMBER_OF_PARAMETERS +");";
             return command;
         }
 
