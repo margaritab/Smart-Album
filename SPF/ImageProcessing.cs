@@ -12,7 +12,6 @@ using System.Runtime.InteropServices;
 
 using System.IO;
 using System.Xml;
-using System.Drawing;
 using System.Windows.Forms;
 namespace SPF
 {
@@ -52,7 +51,15 @@ namespace SPF
             _imageRGB = new Image<Bgr, byte>(imagePath);    //Read the files as an 8-bit RGB image
             _imageHSV = new Image<Hsv, byte>(imagePath);   //Read the files as an 8-bit HSV image
             _imageGray = new Image<Gray, byte>(imagePath);  //Read the files as an 8-bit gray image
-         
+            
+            //!!!!!!!!!!!!!!
+            Console.WriteLine("path: " + imagePath);
+           // _imageGray.Save("C:\\img\\realpic.JPG");
+           // MCvScalar sum = CvInvoke.cvSum(_imageGray);
+           // int graySum = (int)(sum.v0);// (_imageGray.Rows * _imageGray.Cols));
+           // Console.WriteLine("sum real: " + graySum);
+
+
             getHistogram();
        /*     try
             {
@@ -259,9 +266,124 @@ namespace SPF
             }
             return 0;
         }
+      
+        //!!!!!!!!!!!!!!!
+        //crop pictures
+        public static List<double> cropImg()
+        {
+            const int DIVIDE_TO = 4;                          
 
-        //calculates laplacian using CV method
-        public static int calcLaplacianIntegral(bool crop)
+            Image<Gray, float> imgCrop = _imageGray.Convert<Gray, float>();
+            Rectangle sizeToCrop;
+            
+            List<double> sumList = new List<double>();            
+
+            //Console.WriteLine("width: " + _imageGray.Width + "height: " + _imageGray.Height);
+            
+            //crop each picture to 16 parts
+            for (int i = 0; i < _imageGray.Height - _imageGray.Height / DIVIDE_TO + 1; i += _imageGray.Height / DIVIDE_TO)
+            {
+                for (int j = 0; j < _imageGray.Width - _imageGray.Width / DIVIDE_TO + 1; j += _imageGray.Width / DIVIDE_TO)
+                {
+                    //set size to crop and crop picture
+                    sizeToCrop = new Rectangle(j, i, _imageGray.Width / DIVIDE_TO, _imageGray.Height / DIVIDE_TO);
+                    imgCrop = _imageGray.Convert<Gray, float>().Copy(sizeToCrop);
+
+                    //imgCrop.Save("C:\\img\\cropedPic" + i + "_" + j + ".JPG");
+                    //Console.WriteLine("C:\\img\\cropedPic" + i + "_" + j + ".JPG");
+                   
+                    sumList.Add(calcLaplacian(imgCrop));//, i, j));
+
+                }
+            }
+
+            //dealllocate images
+            if (imgCrop != null)
+            {
+                imgCrop.Dispose();
+            }
+
+            imgCrop = null;
+
+            return sumList;   
+        
+        }
+
+
+        //!!!!!!!!!!!!!!!
+        //calculate laplacian using CV method
+        public static double calcLaplacian(Image<Gray, float> img)//, int i, int j)
+        {
+            //smooth the image a little bit
+            img.SmoothGaussian(3);
+
+            /*specifying aperture_size=1 gives the fastest variant that is equal to convolving the image 
+            with the following kernel: |0 1 0| |1 -4 1| |0 1 0|*/
+
+
+            //Bitmap bmp = img.Laplace(1).ToBitmap(img.Width, img.Height);
+            //Image<Gray, float> imgLaplace = new Image<Gray, float>(bmp);
+
+            Image<Gray, float> imgLaplace = img.Laplace(1);
+            
+            /*
+             float[,] k = { { 0, 1, 0 }, 
+                            { 1, -4, 1 },
+                            { 0, 1, 0 } };
+
+             ConvolutionKernelF kernel = new ConvolutionKernelF(k);
+             Image<Gray, float> convoluted = img * kernel;
+             if(imgLaplace.Equals(convoluted))
+             Console.WriteLine("**************true******************");
+            */
+
+            //imgLaplace.Save("C:\\img\\notsharpLaplace" + i + "_" + j + ".JPG");
+
+            imgLaplace = imgLaplace.Pow(2);           
+            MCvScalar sum = CvInvoke.cvSum(imgLaplace);
+            double laplaceSum = (double)(sum.v0 / (imgLaplace.Rows * imgLaplace.Cols));
+
+            //Console.WriteLine("sumlap: " + Math.Abs(laplaceSum));
+
+            //dealllocate images
+            if (imgLaplace != null)
+            {
+                imgLaplace.Dispose();
+            }
+
+            imgLaplace = null;
+
+            return Math.Abs(laplaceSum);
+
+        }
+
+
+        /*calculates standart diviation by using it's formula
+         * for a finite set of numbers X1,...,Xn the standard deviation is found by taking 
+         * the square root of the average of the squared differences of the values from their 
+         * average value: sqrt(1/n * sigma((Xi - avg)^2)), 1 < i < n
+         */
+        public static double calcSD(List<double> sumList)
+        {
+            double avg = sumList.Average();
+            double sumOfSquares = 0;
+
+            foreach (int val in sumList)
+            {
+                sumOfSquares += Math.Pow((val - avg), 2);
+            }
+            return Math.Sqrt(sumOfSquares / (sumList.Count - 1));
+        }
+
+        public static double calcMinMax(List<double> sumList)
+        {
+            return sumList.Max() - sumList.Min();   
+        }
+
+
+
+        //calculates laplacian using CV method - old
+       /* public static int calcLaplacianIntegral(bool crop)
         {
             Image<Gray, float> imgLaplace = _imageGray.Convert<Gray, float>();
 
@@ -273,18 +395,18 @@ namespace SPF
         //     imgLaplace.Save("C:\\img\\crp.jpg");
          
             }
-            //smooth the image a little bit
+            //smooth the image a little bit 3x3
             imgLaplace.SmoothGaussian(3);
 
             //calculates laplacian
             imgLaplace = imgLaplace.Laplace(19);
 
-            /* ImageViewer viewer = new ImageViewer(); //create an image viewer
+             //ImageViewer viewer = new ImageViewer(); //create an image viewer
              ////display the image
-             viewer.Image = imgLaplace;
-             viewer.Show();//show the image viewer
-             imgLaplace.Save("C:\\img\\notsharpLaplace1.JPG");
-             */
+             //viewer.Image = imgLaplace;
+             //viewer.Show();//show the image viewer
+             //imgLaplace.Save("C:\\img\\notsharpLaplace1.JPG");
+             
 
             //calculates the integral of the laplacian image
             MCvScalar sum = CvInvoke.cvSum(imgLaplace);
@@ -302,7 +424,8 @@ namespace SPF
 
             GC.Collect();
             return Math.Abs(laplaceSum);
-        }
+        }*/
+
 
         //calculates RGB gray average gray levels seperately
         public static void calcRGBAverageGrayLevel(out double red, out double green, out double blue)
@@ -715,6 +838,7 @@ namespace SPF
 
             // Deallocate managed memory
             GC.Collect();
+
 
 
         }
