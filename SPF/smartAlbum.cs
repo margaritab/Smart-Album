@@ -212,10 +212,10 @@ namespace SPF
             // remove comment if you want to optimize one of the algorithms
 
             // optimize svm
-            // Internal_SVM(goodImages, badImages);
+             Internal_SVM(goodImages, badImages);
             // optimize knn
-            Internal_KNN(goodImages, badImages);
-            // optimize knn and svm
+           // Internal_KNN(goodImages, badImages);
+            // optimize knn and svm`
             //Internal_KNN_SVM(goodImages, badImages); //regular intersection
             //testIntersection(goodImages, badImages); //smart intersection
 
@@ -227,6 +227,8 @@ namespace SPF
             //differentAlbums(goodImages, badImages);
 
             copyGoodImages(filesTrue, filesFalse);
+
+          
 
             Console.WriteLine("Done: " + string.Format("{0:HH:mm:ss tt}", DateTime.Now));
             learningAlgo.Quit();
@@ -261,6 +263,8 @@ namespace SPF
          */
         private void crossValidation(ImageVector[] goodImages, ImageVector[] badImages)
         {
+            
+
             double totalImages = goodImages.Length + badImages.Length;
             double lowest, goodPercent = goodImages.Length / totalImages;
             lowest = 1 - goodPercent;
@@ -270,7 +274,7 @@ namespace SPF
             {
                 int p = (int)(percent * 100);
 
-                for (int i = 1; i <= 1; i++)
+                for (int i = 1; i <= 10; i++)
                 {
 
                     Console.WriteLine("Percent = " + percent + ",Iteration =  " + i + ", Time: " + string.Format("{0:HH:mm:ss tt}", DateTime.Now));
@@ -298,6 +302,57 @@ namespace SPF
                     double elapsed = (double)stopWatch.ElapsedMilliseconds / 1000;
                     Console.WriteLine("Total time " + elapsed);
                 }
+
+                //**********calculate the most importent attributes***********//
+                double[][] pk = new double[15][];
+                double[][] nk = new double[15][];
+                double[] remainder = new double[15];
+                double[] gain = new double[15];
+              
+                ClassifierNew cn;
+                cn = new ClassifierNew();
+                cn.initArray(remainder);
+                cn.initArray(gain);
+
+                for (int k = 0; k < ImageVector.NUMBER_OF_PARAMETERS; k++)
+                {
+                    //positive negative example
+                    pk[k] = new double[cn.sizeRange(ImageVector.getParameterNameByIndex(k)) + 1];
+                    nk[k] = new double[cn.sizeRange(ImageVector.getParameterNameByIndex(k)) + 1];
+                }
+                
+                for (int i = 0; i < goodImages.Length; i++)
+                {
+                   // Console.WriteLine("pk["+i+"]");
+                    for (int k = 0; k < ImageVector.NUMBER_OF_PARAMETERS; k++)
+                    {
+                        cn.calacPositiveNegative(ref pk[k],goodImages[i].getParameterByIndex(k),ImageVector.getParameterNameByIndex(k));
+                    }
+                }
+
+                for (int i = 0; i < badImages.Length; i++)
+                {
+                 //   Console.WriteLine("nk[" + i + "]");
+                    for (int k = 0; k < ImageVector.NUMBER_OF_PARAMETERS; k++)
+                    {
+                       cn.calacPositiveNegative(ref nk[k],badImages[i].getParameterByIndex(k), ImageVector.getParameterNameByIndex(k));
+                    }
+
+                }
+                
+                int size = goodImages.Length + badImages.Length;
+                for (int i = 0; i < ImageVector.NUMBER_OF_PARAMETERS; i++)
+                {
+                    cn.calcRemainder(ref remainder[i],pk[i], nk[i], size);
+                 //   Console.WriteLine("remainder["+i+"] " +remainder[i]);
+                    cn.calcGain(ref gain[i], remainder[i] ,goodImages.Length , badImages.Length);
+                  //  Console.WriteLine("gain[" + i + "] " + gain[i]);
+                }
+
+
+                
+
+                //********************************//
 
                 string algoPath = learningAlgo.ResultPath;
                 if (!Directory.Exists(algoPath))
@@ -500,6 +555,7 @@ namespace SPF
                 for (int index = 0; index < goodImages.Length; index++)
                 {
                     fileGoodImages.WriteLine(goodImages[index].getAllParameters(true));
+                   
                 }
                 for (int index = 0; index < badImages.Length; index++)
                 {
@@ -511,6 +567,7 @@ namespace SPF
             }
             else
                 Internal_getImageFromFile(ref goodImages, ref badImages, goodImagesPath, badImagesPath, filesTrue.Length, filesFalse.Length);
+            
 
         }
 

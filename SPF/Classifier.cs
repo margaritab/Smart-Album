@@ -192,7 +192,7 @@ namespace SPF
          * how_much_good array contain the number of true values for parameter i in cell i and the number of false values for parameter i in cell i+1*/
         public static void Preparation_remainder(int i, ImageVector.ImageParameters param, bool how_is_picture, double value, ref double[] how_much_pictures, ref double[] how_much_good)
        {
-           i *= 2;
+            i *= 2;
             double[] bounds = new double[0];
             getBoundArray(param, ref bounds);
             int N = bounds.Length;
@@ -210,11 +210,11 @@ namespace SPF
             }
 
             if (k >= (N / 2))
-                how_much_good[i]=how_much_good[i]+1;
+                how_much_good[i]=how_much_good[i] + 1;
             else
                 how_much_good[i + 1]= how_much_good[i+1]+1;
 
-
+            
             if (how_is_picture)//picture is good
                 how_much_pictures[i]=how_much_pictures[i]+1; //adding one good picture to parameter place
             else
