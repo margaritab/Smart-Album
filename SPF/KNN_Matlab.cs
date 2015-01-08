@@ -147,7 +147,7 @@ namespace SPF
         private string GetCommand(string path, int k)
         {
             string command = "albumKnn";
-            command += "('" + path + "', " + k + ");";
+            command += "('" + path + "', " + k + " ," + ImageVector.NUMBER_OF_PARAMETERS + ");";
             return command;
         }
 

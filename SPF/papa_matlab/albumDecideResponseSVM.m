@@ -1,4 +1,4 @@
-function [ decision ] = albumDecideResponseSVM( userWorkSpace, kernel )
+function [ decision ] = albumDecideResponseSVM( userWorkSpace, kernel, numOfParameters )
 
 fileToDecide = strcat(userWorkSpace,'\\Decide.txt');
 profilePath = strcat(userWorkSpace,'\\profile');
@@ -10,7 +10,7 @@ resultFilePath = strcat(userWorkSpace,'\\Result.txt');
 load(profilePath,'svmStruct');
 
 Sample = csvread(fileToDecide);
-Sample = Sample(1:1, 1:15);
+Sample = Sample(1:1, 1:numOfParameters);
 
 decision = svmclassify(svmStruct, Sample);
 

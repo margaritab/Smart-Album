@@ -26,6 +26,8 @@ namespace SPF
         bool[] isImageGood;
 
 
+        public static int sd02 = 0, sd220 = 0, sd20plus = 0;
+        public static int m030 = 0, m3060 = 0, m60plus = 0;
 
         public smartAlbum(string allPathL, string truePathL, string userPathL, string decidePathL)
         {
