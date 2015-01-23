@@ -22,8 +22,9 @@ namespace SPF
         public static double[] NUM_OF_PEOPLE_BOUNDS = { 1, 3, 5 };
         public static double[] EDGES_BOUNDS = { 10, 30, 70, 120 };
         public static double[] IMAGE_INFORMATION_BOUNDS = { 7.8, 8, 8.5 };
-        public static double[] VARIANCE_BOUNDS = { 5, 10, 20, 60 };        
-       
+        public static double[] VARIANCE_BOUNDS = { 5, 10, 20, 60 };
+        public static double[] STANDART_DIVIATION = { 2, 10 };
+        public static double[] MIN_MAX = { 30, 60 };
 
         
         int numOfParameters;
@@ -142,7 +143,12 @@ namespace SPF
         }
         */
 
+
+
+
         /* Get classification bounds array of given parameter*/
+
+      
         public static void getBoundArray(ImageVector.ImageParameters param, ref double[] array)
         {
             array = null;
@@ -192,6 +198,12 @@ namespace SPF
                     break;
                 case ImageVector.ImageParameters.imageInformation:
                     array = IMAGE_INFORMATION_BOUNDS;
+                    break;
+                case ImageVector.ImageParameters.standartDiviation:
+                    array = STANDART_DIVIATION;
+                    break;
+                case ImageVector.ImageParameters.minMax:
+                    array = MIN_MAX;
                     break;
                 default:
                     throw (new Exception("Classification for " + param.ToString() + " is not implemented"));
