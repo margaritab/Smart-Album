@@ -26,9 +26,8 @@ namespace SPF
         bool[] isImageGood;
 
 
-        public static int sd02 = 0, sd220 = 0, sd20plus = 0;
-        public static int m030 = 0, m3060 = 0, m60plus = 0;
-
+        public static int sd02 = 0, sd2plus = 0;
+        
         public smartAlbum(string allPathL, string truePathL, string userPathL, string decidePathL)
         {
             allPath = allPathL;
@@ -214,11 +213,11 @@ namespace SPF
             // remove comment if you want to optimize one of the algorithms
 
             // optimize svm
-             Internal_SVM(goodImages, badImages);
+            //Internal_SVM(goodImages, badImages);
             // optimize knn
-           // Internal_KNN(goodImages, badImages);
+             //Internal_KNN(goodImages, badImages);
             // optimize knn and svm`
-            //Internal_KNN_SVM(goodImages, badImages); //regular intersection
+            Internal_KNN_SVM(goodImages, badImages); //regular intersection
             //testIntersection(goodImages, badImages); //smart intersection
 
             // test using cross validation
@@ -245,7 +244,7 @@ namespace SPF
             {
                 string[] fileName = filesTrue[i].Split('\\');
                 string name = fileName[fileName.Length - 1];
-               // if (learningAlgo.FilesTrueResults[i] == LearningAlgorithmML.Algorithm.GOOD)
+                if (learningAlgo.FilesTrueResults[i] == LearningAlgorithmML.Algorithm.GOOD)
                     File.Copy(filesTrue[i], decidePath + "\\" + name);
             }
 
@@ -264,8 +263,7 @@ namespace SPF
          * each percent is tested 10 times and the results are averaged
          */
         private void crossValidation(ImageVector[] goodImages, ImageVector[] badImages)
-        {
-            
+        {            
 
             double totalImages = goodImages.Length + badImages.Length;
             double lowest, goodPercent = goodImages.Length / totalImages;
@@ -276,7 +274,7 @@ namespace SPF
             {
                 int p = (int)(percent * 100);
 
-                for (int i = 1; i <= 10; i++)
+                for (int i = 1; i <= 1; i++)
                 {
 
                     Console.WriteLine("Percent = " + percent + ",Iteration =  " + i + ", Time: " + string.Format("{0:HH:mm:ss tt}", DateTime.Now));
@@ -304,8 +302,9 @@ namespace SPF
                     double elapsed = (double)stopWatch.ElapsedMilliseconds / 1000;
                     Console.WriteLine("Total time " + elapsed);
                 }
-
+                
                 //**********calculate the most importent attributes***********//
+                /*
                 double[][] pk = new double[15][];
                 double[][] nk = new double[15][];
                 double[] remainder = new double[15];
@@ -351,7 +350,7 @@ namespace SPF
                   //  Console.WriteLine("gain[" + i + "] " + gain[i]);
                 }
 
-
+                */
                 
 
                 //********************************//

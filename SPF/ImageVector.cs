@@ -11,7 +11,7 @@ namespace SPF
     [Serializable]
     class ImageVector
     {
-        public const int NUMBER_OF_PARAMETERS = 17;                 // Number of all possible parameters
+        public const int NUMBER_OF_PARAMETERS = 16;                 // Number of all possible parameters
         public const int GOOD_IMAGE = 1;
         //!!!!!!!!!!!!!!!!
         public const int BAD_IMAGE = 0; //was BAD_IMAGE = -1;
@@ -43,8 +43,7 @@ namespace SPF
             imageInformation = 12,
             variance = 13,
             redEye = 14,
-            standartDiviation = 15, //!!!!!!!!!
-            minMax = 16,            //!!!!!!!!!
+            standartDiviation = 15, //!!!!!!!!! 
             unknown
         }
 
@@ -91,8 +90,6 @@ namespace SPF
                     return ImageParameters.redEye;
                 case 15:
                     return ImageParameters.standartDiviation; //!!!!!!!!
-                case 16:
-                    return ImageParameters.minMax;  //!!!!!!!!!
                 default:
                     return ImageParameters.unknown;
             }
@@ -196,34 +193,47 @@ namespace SPF
             _parameterVector[(int)ImageParameters.facesCenterOfGravityY] = y;
             _parameterVector[(int)ImageParameters.facesImageAreaRatio] = ImageProcessing.calcFacesImageAreaRatio();
             _parameterVector[(int)ImageParameters.distanceFromGravityCenter] = ImageProcessing.CalcTotalDistanceFromCenterOfGravity();
-            List<double> sumList = ImageProcessing.cropImg();
-            _parameterVector[(int)ImageParameters.standartDiviation] = ImageProcessing.calcSD(sumList);
-            _parameterVector[(int)ImageParameters.minMax] = ImageProcessing.calcMinMax(sumList);
-            
+           // List<double> sumList = ImageProcessing.cropImg();
+            _parameterVector[(int)ImageParameters.standartDiviation] = ImageProcessing.blur();   
+        
             //!!!!!!!!!!!!!!!!!
+           // ImageProcessing.faceBlur();
+
+            //double sd = ImageProcessing.calcSD(sumList);
+           // Console.WriteLine("sd: " + _parameterVector[(int)ImageParameters.standartDiviation]);
+
+            /*List<double> faceSumList = ImageProcessing.faceBlur();
+            foreach(double facesum in faceSumList)
+            {
+                Console.WriteLine("sum: " + facesum);
+            }*/
+           /* List<double> faceSumList = ImageProcessing.faceBlur();
+            if (faceSumList.Count != 0)
+            {
+                if (faceSumList.Count == 1)
+                {
+                    Console.WriteLine("sum: " + faceSumList.First());
+                }
+                else
+                {
+                    double fsd = ImageProcessing.calcSD(faceSumList);
+                    Console.WriteLine("sd: " + fsd);
+                }
+
+            }*/
+            
             //calculate standart diviation
-            double sd = ImageProcessing.calcSD(sumList);
+            double sd = _parameterVector[(int)ImageParameters.standartDiviation];
             Console.WriteLine("sd: " + sd);
-            //calculate min max
-            double m = ImageProcessing.calcMinMax(sumList);
-            Console.WriteLine("min max: " + m);
+            
             
             if (sd > 0 && sd < 2)
                 smartAlbum.sd02++;
-            if (sd > 2 && sd < 20)
-                smartAlbum.sd220++;
-            if (sd > 20)
-                smartAlbum.sd20plus++;
-            if (m > 0 && m < 10)
-                smartAlbum.m030++;
-            if (m > 10 && m < 60)
-                smartAlbum.m3060++;
-            if (m > 60)
-                smartAlbum.m60plus++;
-
-            Console.WriteLine("count sd: " + smartAlbum.sd02 + " " + smartAlbum.sd220 + " " + smartAlbum.sd20plus);
-            Console.WriteLine("count m: " + smartAlbum.m030 + " " + smartAlbum.m3060 + " " + smartAlbum.m60plus);
+            if (sd > 2)
+                smartAlbum.sd2plus++;
             
+           
+            Console.WriteLine("count sd: 0-2:" + smartAlbum.sd02 + " ,2+:" + smartAlbum.sd2plus);          
             
             
         }

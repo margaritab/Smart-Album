@@ -168,6 +168,7 @@ namespace SPF
             if (_faces == null)
                 findFaces();
 
+            Console.WriteLine("num of people: " + _faces.Length);
             // return num of faces
             return _faces.Length;
         }
@@ -268,32 +269,94 @@ namespace SPF
         }
       
         //!!!!!!!!!!!!!!!
-        //crop pictures
-        public static List<double> cropImg()
+        //blur parameter
+        public static double blur()
+        {          
+            List<double> sumList = cropImg(_imageGray.Convert<Gray, float>());
+            return calcSD(sumList); //calc standart diviation and return it
+        }
+
+        //!!!!!!!!!!!!!!!!!!!
+        public static List<double> faceBlur()
         {
-            const int DIVIDE_TO = 4;                          
-
-            Image<Gray, float> imgCrop = _imageGray.Convert<Gray, float>();
-            Rectangle sizeToCrop;
+           
             
-            List<double> sumList = new List<double>();            
+            // Find faces if not found yet
+            if (_faces == null)
+                findFaces();
 
-            //Console.WriteLine("width: " + _imageGray.Width + "height: " + _imageGray.Height);
-            
-            //crop each picture to 16 parts
-            for (int i = 0; i < _imageGray.Height - _imageGray.Height / DIVIDE_TO + 1; i += _imageGray.Height / DIVIDE_TO)
+            List<double> faceSumList = new List<double>();
+
+            int j = 0;
+            foreach (Rectangle currentFace in _faces)
             {
-                for (int j = 0; j < _imageGray.Width - _imageGray.Width / DIVIDE_TO + 1; j += _imageGray.Width / DIVIDE_TO)
+                // Crop face
+                Image<Gray, byte> cropped = _imageGray.Copy(currentFace);
+                Image<Gray, float> imgCrop = cropped.Convert<Gray, float>();
+                faceSumList.Add(calcLaplacian(imgCrop));
+                cropped.Save("C:\\img\\cropedPic" + j + ".JPG");
+                j++;
+            }
+
+            return faceSumList;
+            
+
+            /*Image<Gray, float> imgCrop = _imageGray.Convert<Gray, float>();
+            Rectangle sizeToCrop;
+
+            // Find faces if not found yet
+            if (_faces == null)
+                findFaces();
+
+            // Crop faces of each face rectangle
+            int numberOfFaces = _faces.Length;
+
+            /*if(numberOfFaces != 0)
+            {
+                  for (int i = 0; i < numberOfFaces; i++)
+                  {
+                      sizeToCrop = _faces[i];
+                      imgCrop = _imageGray.Convert<Gray, float>().Copy(sizeToCrop);
+
+                      imgCrop.Save("C:\\img\\cropedPic" + i + ".JPG");
+                      Console.WriteLine("C:\\img\\cropedPic" + i + ".JPG");
+                  }
+            }*/
+            
+            /*if (numberOfFaces == 0)
+            {
+                //return new Point(-1, -1);
+            }
+            else
+            if (numberOfFaces != 0)
+            {
+                // Calc centers of each face rectangle
+                Point[] centers = new Point[numberOfFaces];
+                Console.WriteLine("width: " + _imageGray.Width + " heigt: " + _imageGray.Height);
+                Size size = new Size(_imageGray.Width/4, _imageGray.Height/4);
+                Console.WriteLine("width: " + size.Width + " heigt: " + size.Height);
+                for (int i = 0; i < numberOfFaces; i++)
                 {
-                    //set size to crop and crop picture
-                    sizeToCrop = new Rectangle(j, i, _imageGray.Width / DIVIDE_TO, _imageGray.Height / DIVIDE_TO);
+                    centers[i] = new Point(_faces[i].X + (_faces[i].Width / 2), _faces[i].Y + (_faces[i].Height / 2));
+                    Console.WriteLine("x-center: " + centers[i].X + " y-center: " + centers[i].Y);
+                    Point temp = new Point(centers[i].X - ((_imageGray.Width / 4)/2), centers[i].Y + ((_imageGray.Height / 4)/2));
+                    Console.WriteLine("x-new: " + temp.X + " y-new: " + temp.Y);
+                    if (temp.X + size.Width > _imageGray.Width && temp.Y + size.Height > _imageGray.Height)
+                    {
+                        size = new Size(_imageGray.Width / 4, _imageGray.Height / 4);
+                    }
+                    else if (temp.X + size.Width > _imageGray.Width)
+                    {
+                        size = new Size(_imageGray.Width - temp.X, _imageGray.Height / 4);
+                    }
+                    else if (temp.Y + size.Height > _imageGray.Height)
+                    {
+                        size = new Size(_imageGray.Width/4, _imageGray.Height - temp.Y);
+                    }
+                    sizeToCrop = new Rectangle(temp, size);
                     imgCrop = _imageGray.Convert<Gray, float>().Copy(sizeToCrop);
-
-                    //imgCrop.Save("C:\\img\\cropedPic" + i + "_" + j + ".JPG");
-                    //Console.WriteLine("C:\\img\\cropedPic" + i + "_" + j + ".JPG");
-                   
-                    sumList.Add(calcLaplacian(imgCrop));//, i, j));
-
+                    imgCrop.Save("C:\\img\\cropedPic" + i + ".JPG");
+                    //Console.WriteLine("C:\\img\\cropedPic" + i + ".JPG");
                 }
             }
 
@@ -303,83 +366,9 @@ namespace SPF
                 imgCrop.Dispose();
             }
 
-            imgCrop = null;
-
-            return sumList;   
-        
-        }
-
-
-        //!!!!!!!!!!!!!!!
-        //calculate laplacian using CV method
-        public static double calcLaplacian(Image<Gray, float> img)//, int i, int j)
-        {
-            //smooth the image a little bit
-            img.SmoothGaussian(3);
-
-            /*specifying aperture_size=1 gives the fastest variant that is equal to convolving the image 
-            with the following kernel: |0 1 0| |1 -4 1| |0 1 0|*/
-
-
-            //Bitmap bmp = img.Laplace(1).ToBitmap(img.Width, img.Height);
-            //Image<Gray, float> imgLaplace = new Image<Gray, float>(bmp);
-
-            Image<Gray, float> imgLaplace = img.Laplace(1);
-            
-            /*
-             float[,] k = { { 0, 1, 0 }, 
-                            { 1, -4, 1 },
-                            { 0, 1, 0 } };
-
-             ConvolutionKernelF kernel = new ConvolutionKernelF(k);
-             Image<Gray, float> convoluted = img * kernel;
-             if(imgLaplace.Equals(convoluted))
-             Console.WriteLine("**************true******************");
-            */
-
-            //imgLaplace.Save("C:\\img\\notsharpLaplace" + i + "_" + j + ".JPG");
-
-            imgLaplace = imgLaplace.Pow(2);           
-            MCvScalar sum = CvInvoke.cvSum(imgLaplace);
-            double laplaceSum = (double)(sum.v0 / (imgLaplace.Rows * imgLaplace.Cols));
-
-            //Console.WriteLine("sumlap: " + Math.Abs(laplaceSum));
-
-            //dealllocate images
-            if (imgLaplace != null)
-            {
-                imgLaplace.Dispose();
-            }
-
-            imgLaplace = null;
-
-            return Math.Abs(laplaceSum);
+            imgCrop = null;*/
 
         }
-
-
-        /*calculates standart diviation by using it's formula
-         * for a finite set of numbers X1,...,Xn the standard deviation is found by taking 
-         * the square root of the average of the squared differences of the values from their 
-         * average value: sqrt(1/n * sigma((Xi - avg)^2)), 1 < i < n
-         */
-        public static double calcSD(List<double> sumList)
-        {
-            double avg = sumList.Average();
-            double sumOfSquares = 0;
-
-            foreach (int val in sumList)
-            {
-                sumOfSquares += Math.Pow((val - avg), 2);
-            }
-            return Math.Sqrt(sumOfSquares / (sumList.Count - 1));
-        }
-
-        public static double calcMinMax(List<double> sumList)
-        {
-            return sumList.Max() - sumList.Min();   
-        }
-
 
 
         //calculates laplacian using CV method - old
@@ -613,10 +602,137 @@ namespace SPF
               return laplaceSum;
           } 
         */
+        /* public static void Write(TextWriter writeTo)
+        {
+            
+                //ImageVector vector = new ImageVector(filePath, dictionary);
+                writeTo.WriteLine("sdfsfd:");
+
+
+                //for (int i = 0; i < ImageVector.NUMBER_OF_PARAMETERS; i++)
+                //{
+                   // ImageVector.ImageParameters currentParam = ImageVector.getParameterNameByIndex(i);
+                    //if (dictionary[currentParam])
+                findEyes();
+                        writeTo.WriteLine("* " + _eyes.Length);
+                //}
+
+        }*/
 
         #endregion
 
         #region Private Methods
+
+        //!!!!!!!!!!!!
+        //crop pictures 16x16
+        private static List<double> cropImg(Image<Gray, float> img)
+        {
+            const int DIVIDE_TO = 4;
+
+            Image<Gray, float> imgCrop = img; //_imageGray.Convert<Gray, float>();
+            Rectangle sizeToCrop;
+
+            List<double> sumList = new List<double>();
+
+           // Console.WriteLine("width: " + _imageGray.Width + "height: " + _imageGray.Height);
+           // Console.WriteLine("width: " + img.Width + "height: " + img.Height);
+
+            //crop each picture to 16 parts
+            for (int i = 0; i < img.Height - img.Height / DIVIDE_TO + 1; i += img.Height / DIVIDE_TO)
+            {
+                for (int j = 0; j < img.Width - img.Width / DIVIDE_TO + 1; j += img.Width / DIVIDE_TO)
+                {
+                    //set size to crop and crop picture
+                    sizeToCrop = new Rectangle(j, i, img.Width / DIVIDE_TO, img.Height / DIVIDE_TO);
+                    imgCrop = img.Convert<Gray, float>().Copy(sizeToCrop);
+
+                    //imgCrop.Save("C:\\img\\cropedPic" + i + "_" + j + ".JPG");
+                    //Console.WriteLine("C:\\img\\cropedPic" + i + "_" + j + ".JPG");
+
+                    sumList.Add(calcLaplacian(imgCrop));//, i, j));
+
+                }
+            }
+
+            //dealllocate images
+            if (imgCrop != null)
+            {
+                imgCrop.Dispose();
+            }
+
+            imgCrop = null;
+
+            return sumList;
+
+        }
+        
+        //!!!!!!!!!!!!!!!
+        //calculate laplacian using CV method
+        private static double calcLaplacian(Image<Gray, float> img)//, int i, int j)
+        {
+            //smooth the image a little bit 3x3
+            img.SmoothGaussian(3);
+
+            /*specifying aperture_size=1 gives the fastest variant that is equal to convolving the image 
+            with the following kernel: |0 1 0| |1 -4 1| |0 1 0|*/
+
+
+            //Bitmap bmp = img.Laplace(1).ToBitmap(img.Width, img.Height);
+            //Image<Gray, float> imgLaplace = new Image<Gray, float>(bmp);
+
+            Image<Gray, float> imgLaplace = img.Laplace(1);
+
+            /*
+             float[,] k = { { 0, 1, 0 }, 
+                            { 1, -4, 1 },
+                            { 0, 1, 0 } };
+
+             ConvolutionKernelF kernel = new ConvolutionKernelF(k);
+             Image<Gray, float> convoluted = img * kernel;
+             if(imgLaplace.Equals(convoluted))
+             Console.WriteLine("**************true******************");
+            */
+
+         //   imgLaplace.Save("C:\\img\\notsharpLaplace" + i + "_" + j + ".JPG");
+         //  Console.WriteLine("C:\\img\\notsharpLaplace" + i + "_" + j + ".JPG");
+
+            imgLaplace = imgLaplace.Pow(2);
+            MCvScalar sum = CvInvoke.cvSum(imgLaplace);
+            double laplaceSum = (double)(sum.v0 / (imgLaplace.Rows * imgLaplace.Cols));
+
+            //Console.WriteLine("sumlap: " + Math.Abs(laplaceSum));
+
+            //dealllocate images
+            if (imgLaplace != null)
+            {
+                imgLaplace.Dispose();
+            }
+
+            imgLaplace = null;
+
+            return Math.Abs(laplaceSum);
+
+        }
+        
+        //!!!!!!!!!!!!
+        /*calculates standart diviation by using it's formula
+        * for a finite set of numbers X1,...,Xn the standard deviation is found by taking 
+        * the square root of the average of the squared differences of the values from their 
+        * average value: sqrt(1/n * sigma((Xi - avg)^2)), 1 < i < n
+        */
+        private static double calcSD(List<double> sumList)
+        {
+            double avg = sumList.Average();
+            double sumOfSquares = 0;
+
+            foreach (int val in sumList)
+            {
+                sumOfSquares += Math.Pow((val - avg), 2);
+            }
+            return Math.Sqrt(sumOfSquares / (sumList.Count - 1));
+        }
+
+
 
         // Calculating the center of gravity of the faces in the loaded image
         private static Point calcFacesCenterOfGravity()
@@ -665,7 +781,7 @@ namespace SPF
             const int MIN_FACE_PIC_WIDTH_RATIO = 12; //old: 13 my good: 10
             const int MIN_FACE_PIC_HEIGHT_RATIO = 10; //old: 13 my good: 12
             const double FACE_SCALE_FACTOR = 1.05;//old: 1.1 my good:1.05
-            const int FACE_MIN_NEIGHBORS = 4;
+            const int FACE_MIN_NEIGHBORS = 5; //4
 
             // Load haar if not loaded
             if (_haarFace == null)
@@ -783,7 +899,7 @@ namespace SPF
             
             // Do HaarCascade
             _objects = pic.DetectHaarCascade(haar, scaleFactor, minNeighbors, Emgu.CV.CvEnum.HAAR_DETECTION_TYPE.DO_CANNY_PRUNING, minSize)[0];
-
+            
             // Count findings
             foreach (var i in _objects)
                 count++;
@@ -903,23 +1019,6 @@ namespace SPF
             {
                 _histogram[i] = (int)CvInvoke.cvQueryHistValue_1D(hist, i);
             }
-        }
-
-        public static void Write(TextWriter writeTo)
-        {
-            
-                //ImageVector vector = new ImageVector(filePath, dictionary);
-                writeTo.WriteLine("sdfsfd:");
-
-
-                //for (int i = 0; i < ImageVector.NUMBER_OF_PARAMETERS; i++)
-                //{
-                   // ImageVector.ImageParameters currentParam = ImageVector.getParameterNameByIndex(i);
-                    //if (dictionary[currentParam])
-                findEyes();
-                        writeTo.WriteLine("* " + _eyes.Length);
-                //}
-
         }
 
         #endregion
