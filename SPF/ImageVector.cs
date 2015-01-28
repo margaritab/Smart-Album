@@ -43,7 +43,7 @@ namespace SPF
             imageInformation = 12,
             variance = 13,
             redEye = 14,
-            standartDiviation = 15, //!!!!!!!!!
+            standartDiviation = 15, //!!!!!!!!! 
             unknown
         }
 
@@ -142,7 +142,6 @@ namespace SPF
             for (int i = 0; i < other.Length; i++)
                 _parameterVector[i] = other[i];
         }
-
   
         /* Constructor: Builds the vector that describes the image from imagepath. */
         public ImageVector(string imagePath, Dictionary<ImageParameters,bool> parameterDic)    
@@ -194,26 +193,47 @@ namespace SPF
             _parameterVector[(int)ImageParameters.facesCenterOfGravityY] = y;
             _parameterVector[(int)ImageParameters.facesImageAreaRatio] = ImageProcessing.calcFacesImageAreaRatio();
             _parameterVector[(int)ImageParameters.distanceFromGravityCenter] = ImageProcessing.CalcTotalDistanceFromCenterOfGravity();
-            List<double> sumList = ImageProcessing.cropImg();
-            _parameterVector[(int)ImageParameters.standartDiviation] = ImageProcessing.calcSD(sumList);
-            
+           // List<double> sumList = ImageProcessing.cropImg();
+            _parameterVector[(int)ImageParameters.standartDiviation] = ImageProcessing.blur();   
+        
             //!!!!!!!!!!!!!!!!!
+           // ImageProcessing.faceBlur();
+
+            //double sd = ImageProcessing.calcSD(sumList);
+           // Console.WriteLine("sd: " + _parameterVector[(int)ImageParameters.standartDiviation]);
+
+            /*List<double> faceSumList = ImageProcessing.faceBlur();
+            foreach(double facesum in faceSumList)
+            {
+                Console.WriteLine("sum: " + facesum);
+            }*/
+           /* List<double> faceSumList = ImageProcessing.faceBlur();
+            if (faceSumList.Count != 0)
+            {
+                if (faceSumList.Count == 1)
+                {
+                    Console.WriteLine("sum: " + faceSumList.First());
+                }
+                else
+                {
+                    double fsd = ImageProcessing.calcSD(faceSumList);
+                    Console.WriteLine("sd: " + fsd);
+                }
+
+            }*/
+            
             //calculate standart diviation
-            double sd = ImageProcessing.calcSD(sumList);
-            //Console.WriteLine("sd: " + sd);
-           
+            double sd = _parameterVector[(int)ImageParameters.standartDiviation];
+            Console.WriteLine("sd: " + sd);
+            
             
             if (sd > 0 && sd < 2)
                 smartAlbum.sd02++;
-            if (sd > 2 && sd < 20)
-                smartAlbum.sd220++;
-            if (sd > 20)
-                smartAlbum.sd20plus++;
+            if (sd > 2)
+                smartAlbum.sd2plus++;
             
-
-         //   Console.WriteLine("count sd: " + smartAlbum.sd02 + " " + smartAlbum.sd220 + " " + smartAlbum.sd20plus);
-          
-            
+           
+            Console.WriteLine("count sd: 0-2:" + smartAlbum.sd02 + " ,2+:" + smartAlbum.sd2plus);          
             
             
         }
