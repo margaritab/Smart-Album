@@ -11,7 +11,7 @@ namespace SPF
     [Serializable]
     class ImageVector
     {
-        public const int NUMBER_OF_PARAMETERS = 17;                 // Number of all possible parameters
+        public const int NUMBER_OF_PARAMETERS = 16;                 // Number of all possible parameters
         public const int GOOD_IMAGE = 1;
         //!!!!!!!!!!!!!!!!
         public const int BAD_IMAGE = 0; //was BAD_IMAGE = -1;
@@ -44,7 +44,6 @@ namespace SPF
             variance = 13,
             redEye = 14,
             standartDiviation = 15, //!!!!!!!!!
-            minMax = 16,            //!!!!!!!!!
             unknown
         }
 
@@ -91,8 +90,6 @@ namespace SPF
                     return ImageParameters.redEye;
                 case 15:
                     return ImageParameters.standartDiviation; //!!!!!!!!
-                case 16:
-                    return ImageParameters.minMax;  //!!!!!!!!!
                 default:
                     return ImageParameters.unknown;
             }
@@ -145,6 +142,7 @@ namespace SPF
             for (int i = 0; i < other.Length; i++)
                 _parameterVector[i] = other[i];
         }
+
   
         /* Constructor: Builds the vector that describes the image from imagepath. */
         public ImageVector(string imagePath, Dictionary<ImageParameters,bool> parameterDic)    
@@ -198,15 +196,12 @@ namespace SPF
             _parameterVector[(int)ImageParameters.distanceFromGravityCenter] = ImageProcessing.CalcTotalDistanceFromCenterOfGravity();
             List<double> sumList = ImageProcessing.cropImg();
             _parameterVector[(int)ImageParameters.standartDiviation] = ImageProcessing.calcSD(sumList);
-            _parameterVector[(int)ImageParameters.minMax] = ImageProcessing.calcMinMax(sumList);
             
             //!!!!!!!!!!!!!!!!!
             //calculate standart diviation
             double sd = ImageProcessing.calcSD(sumList);
-            Console.WriteLine("sd: " + sd);
-            //calculate min max
-            double m = ImageProcessing.calcMinMax(sumList);
-            Console.WriteLine("min max: " + m);
+            //Console.WriteLine("sd: " + sd);
+           
             
             if (sd > 0 && sd < 2)
                 smartAlbum.sd02++;
@@ -214,15 +209,10 @@ namespace SPF
                 smartAlbum.sd220++;
             if (sd > 20)
                 smartAlbum.sd20plus++;
-            if (m > 0 && m < 10)
-                smartAlbum.m030++;
-            if (m > 10 && m < 60)
-                smartAlbum.m3060++;
-            if (m > 60)
-                smartAlbum.m60plus++;
+            
 
-            Console.WriteLine("count sd: " + smartAlbum.sd02 + " " + smartAlbum.sd220 + " " + smartAlbum.sd20plus);
-            Console.WriteLine("count m: " + smartAlbum.m030 + " " + smartAlbum.m3060 + " " + smartAlbum.m60plus);
+         //   Console.WriteLine("count sd: " + smartAlbum.sd02 + " " + smartAlbum.sd220 + " " + smartAlbum.sd20plus);
+          
             
             
             
